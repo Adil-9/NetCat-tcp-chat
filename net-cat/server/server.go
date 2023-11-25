@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"time"
@@ -26,8 +27,8 @@ func ShowImage(conn net.Conn) {
 	file, err := os.Open("image.txt")
 	if err != nil {
 		conn.Write([]byte("Image Not found"))
-		LogChannel <- fmt.Sprintf("Error image impossbile to draw: %s", conn.LocalAddr().String())
-		LogChannel <- fmt.Sprint(err)
+		log.Printf("Error image impossbile to draw: %s", conn.LocalAddr().String())
+		log.Println(err)
 		return
 	}
 	defer file.Close()
@@ -40,8 +41,8 @@ func ShowImage(conn net.Conn) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		LogChannel <- "Scanner error"
-		LogChannel <- fmt.Sprint(err)
+		log.Println("Scanner error")
+		log.Println(err)
 		return
 	}
 
@@ -58,8 +59,8 @@ func TakeName(conn net.Conn) (string, error) {
 	buffer := make([]byte, 1024)
 	length, err := conn.Read(buffer)
 	if err != nil {
-		LogChannel <- fmt.Sprintf("Error reading name: %s", conn.LocalAddr().String())
-		LogChannel <- fmt.Sprint(err)
+		log.Printf("Error reading name: %s", conn.LocalAddr().String())
+		log.Println(err)
 		errString := fmt.Sprintf("Error unresolved name: %v \n", err)
 		conn.Write([]byte(errString))
 		conn.Close()
@@ -67,11 +68,11 @@ func TakeName(conn net.Conn) (string, error) {
 	}
 	name := string(buffer[:length-1])
 	if _, ispresent := ServConf.Users[name]; ispresent {
-		LogChannel <- fmt.Sprintf("Connection attempt from %s", conn.LocalAddr().String())
+		log.Printf("Connection attempt from %s", conn.LocalAddr().String())
 		conn.Write([]byte("Username taken, choose different one \n"))
 		return "", errors.New("USERNAME TAKEN")
 	}
-	LogChannel <- fmt.Sprintf("Connection from %s, with USERNAME: %s", conn.LocalAddr().String(), name)
+	log.Printf("Connection from %s, with USERNAME: %s", conn.LocalAddr().String(), name)
 	return name, nil
 }
 
@@ -82,7 +83,7 @@ func TakeInput(conn net.Conn, name string, BrCaChannel chan Message) {
 		buffer := make([]byte, 1024)
 		length, err := conn.Read(buffer)
 		if err != nil {
-			LogChannel <- fmt.Sprintf("Connection closed: %s, with USERNAME %s", conn.LocalAddr().String(), name)
+			log.Printf("Connection closed: %s, with USERNAME %s", conn.LocalAddr().String(), name)
 			conn.Close()
 			ServConf.Mu.Lock()
 			delete(ServConf.Users, name)

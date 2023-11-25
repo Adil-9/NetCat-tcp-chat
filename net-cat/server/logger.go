@@ -6,7 +6,7 @@ import (
 )
 
 func LoggerCreate() {
-	channel := LogChannel
+	// channel := LogChannel
 	file, err := os.Create("Logs.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -16,8 +16,9 @@ func LoggerCreate() {
 
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
 	log.SetOutput(file)
+	log.SetPrefix("INFO: 	")
 
-	for input := range channel {
-		log.Println(input)
-	}
+	// for input := range channel {
+	// 	log.Println(input)
+	// }
 }

@@ -6,7 +6,7 @@ import (
 )
 
 var ServConf = initiateServConf()
-var LogChannel = make(chan string)
+// var LogChannel = make(chan string)
 
 type ServerConf struct {
 	Mu         sync.Mutex

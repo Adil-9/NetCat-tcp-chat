@@ -2,22 +2,39 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"netcat/server"
+	// "github.com/jroimartin/gocui"
 )
 
 func main() {
+	// g, err := gocui.NewGui(gocui.OutputNormal)
+	// if err != nil {
+	// 	// handle error
+	// 	return
+	// }
+	// defer g.Close()
+
+	// // Set GUI managers and key bindings
+	// // ...
+
+	// if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
+	// 	// handle error
+	// 	return
+	// }
+	//this shit is dangerous
 	servConf := server.ServConf
 	servConf.Configure()
-	go server.LoggerCreate()
-	logChannel := server.LogChannel
+	server.LoggerCreate()
+	// logChannel := server.LogChannel
 
-	logChannel <- fmt.Sprintf("Attempt listening on localhost:%s", server.ServConf.Port)
+	log.Printf("Attempt listening on localhost:%s", server.ServConf.Port)
 	listener, err := net.Listen("tcp", "localhost:"+servConf.Port)
 	if err != nil {
-		fmt.Println(err)
-		logChannel <- fmt.Sprintf("Unseccessfull listening attempt on port:%s", servConf.Port)
-		logChannel <- fmt.Sprint(err)
+		// fmt.Println(err)
+		log.Printf("Unseccessfull listening attempt on port:%s", servConf.Port)
+		log.Println(err)
 		return
 	}
 	defer listener.Close()
@@ -29,16 +46,16 @@ func main() {
 
 	for {
 		conn, err := listener.Accept()
-		logChannel <- fmt.Sprintf("Connection attempt from %s", conn.LocalAddr().String())
+		log.Printf("Connection attempt from %s", conn.LocalAddr().String())
 		if len(server.ServConf.Users) == 10 {
-			logChannel <- fmt.Sprintf("Connection attempt from %s, connection not possible, group is full", conn.LocalAddr().String())
+			log.Printf("Connection attempt from %s, connection not possible, group is full", conn.LocalAddr().String())
 			conn.Write([]byte(string("The chat is full connect later!")))
 			conn.Close()
 			continue
 		}
 		if err != nil {
-			logChannel <- fmt.Sprintf("Connection error, connection unsuccessfull: %v", conn.LocalAddr().String())
-			logChannel <- fmt.Sprint(err)
+			log.Printf("Connection error, connection unsuccessfull: %v", conn.LocalAddr().String())
+			log.Println(err)
 			fmt.Printf("Connection error: %v \n", err)
 			continue
 		}
@@ -60,19 +77,10 @@ func HandleConnection(conn net.Conn, BrCaChannel chan server.Message) {
 	}
 
 	if err != nil { //connection closed in function if err occured
-		server.LogChannel <- fmt.Sprint(err)
+		log.Println(err)
 		return
 	}
-
-	// channel := make(chan server.Message)
-
 	userConnInfo := server.CreateUserConnInfo(name, conn) //smth like constructor
-
-	// UserConnInfo := server.UserConnInfo{
-	// 	UserName: name,
-	// 	// UserChannel:    channel,
-	// 	UserConnection: conn,
-	// }
 
 	server.AppendUser(name, userConnInfo)
 
