@@ -1,2 +1,0 @@
-2023/11/25 16:13:06 it fucking works like that
-2023/11/25 16:13:06 logger.go:21: Attempt listening on localhost:8989

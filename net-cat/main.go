@@ -26,7 +26,8 @@ func main() {
 	//this shit is dangerous
 	servConf := server.ServConf
 	servConf.Configure()
-	server.LoggerCreate()
+	file := server.LoggerCreate(log.Default())
+	defer file.Close()
 	// logChannel := server.LogChannel
 
 	log.Printf("Attempt listening on localhost:%s", server.ServConf.Port)

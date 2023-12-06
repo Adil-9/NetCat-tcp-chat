@@ -5,20 +5,20 @@ import (
 	"os"
 )
 
-func LoggerCreate() {
-	// channel := LogChannel
-	file, err := os.Create("Logs.txt")
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	defer file.Close()
+func LoggerCreate(logger *log.Logger) os.File {
+	file, err := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
-	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
-	log.SetOutput(file)
-	log.SetPrefix("INFO: 	")
+	if err != nil {
+		logger.Fatal(err)
+	}
+	// defer file.Close()
+
+	logger.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
+	logger.SetOutput(file)
+	logger.SetPrefix("INFO: 	")
 
 	// for input := range channel {
 	// 	log.Println(input)
 	// }
+	return *file
 }
